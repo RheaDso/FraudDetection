@@ -1,0 +1,38 @@
+name: ci
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --frozen
+      - run: make lint
+      - run: make test
+
+  image:
+    needs: checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --frozen
+      # Synthetic artifacts: real data never reaches CI.
+      - run: make smoke
+      - run: docker build --build-arg ARTIFACTS_DIR=build/smoke/artifacts -t fraud-api .
+      - name: Probe the container
+        run: |
+          docker run -d --name api -p 8000:8000 fraud-api
+          for attempt in $(seq 1 30); do
+            curl -fs http://localhost:8000/health && break
+            sleep 2
+          done
+          curl -fs http://localhost:8000/health
+          curl -fs -X POST http://localhost:8000/score -H 'Content-Type: application/json' \
+            -d '{"TransactionID":1,"TransactionDT":6000000,"TransactionAmt":120.5,"ProductCD":"W","card1":5000}'
+      - if: failure()
+        run: docker logs api

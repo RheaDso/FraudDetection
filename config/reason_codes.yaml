@@ -1,0 +1,57 @@
+# Feature -> plain-English reason (FR-7.2). A feature can raise the score whether its value is
+# high or low, so the wording describes what to look at rather than a direction.
+TransactionAmt: Transaction amount adds to the risk
+AMT_LOG: Transaction amount adds to the risk
+AMT_CENTS: Unusual cents in the amount
+AMT_ROUND_FLAG: Round-number amount pattern
+AMT_ZSCORE_UID: Amount is unusual compared with this card's past spend
+AMT_TO_MAX_PRIOR: Amount compared with this card's largest past purchase
+UID_AMT_SUM_24H: Total spend in the last 24 hours
+UID_AMT_MEAN_PRIOR: This card's usual spend level
+UID_AMT_STD_PRIOR: How much this card's spend normally varies
+UID_TXN_COUNT_1H: Number of transactions in the last hour
+UID_TXN_COUNT_24H: Number of transactions in the last 24 hours
+UID_TXN_COUNT_7D: Number of transactions in the last 7 days
+CARD1_TXN_COUNT_24H: Activity on this card number in the last 24 hours
+SECS_SINCE_LAST_TXN: Time since this card's previous transaction
+UID_NEW_DEVICE: Device history for this card is unusual
+UID_NEW_EMAIL: Email domain history for this card is unusual
+UID_DISTINCT_ADDR_7D: Billing address changes in the last 7 days
+UID_IS_FIRST_TXN: Little or no history for this card
+HOUR: Time of day of the purchase
+IS_NIGHT: Night-time purchase pattern
+DOW: Day of week of the purchase
+EMAIL_MATCH: Buyer and recipient email domains
+P_emaildomain: Purchaser email domain
+R_emaildomain: Recipient email domain
+P_EMAIL_PROVIDER: Purchaser email provider
+P_EMAIL_TLD: Purchaser email domain suffix
+DeviceInfo: Device used
+DeviceType: Type of device used
+DEVICE_BRAND: Device family
+HAS_IDENTITY: Presence or absence of device and identity data
+ProductCD: Product type
+card1: Card identifier pattern
+card2: Card attribute
+card3: Card issuing attribute
+card4: Card network
+card5: Card attribute
+card6: Card type (debit or credit)
+addr1: Billing region
+addr2: Billing country
+dist1: Distance measure between addresses
+D1: Days since the card was first seen
+D2: Elapsed-time signal from the data provider
+D_NORM_1: Estimated account-open date
+M_TRUE_COUNT: Number of identity checks that matched
+M_FALSE_COUNT: Number of identity checks that failed
+M_NAN_COUNT: Number of identity checks not available
+M4: Card and name match category
+FREQ_card1: How common this card identifier is
+FREQ_addr1: How common this billing region is
+FREQ_P_emaildomain: How common this email domain is
+FREQ_DeviceInfo: How common this device is
+FREQ_UID: How much history exists for this customer proxy
+C1: Count of items linked to the card (anonymised C1)
+C13: Count of items linked to the card (anonymised C13)
+C14: Count of items linked to the card (anonymised C14)

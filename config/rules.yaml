@@ -1,0 +1,31 @@
+# Rules baseline (FR-4.1). A rule fires when all its conditions hold; a missing value never
+# satisfies a condition. `quantile` thresholds are fitted on TRAIN. Weights are fitted on TRAIN.
+rules:
+  - name: high_amount
+    when:
+      - {feature: TransactionAmt, op: ">", quantile: 0.99}
+  - name: new_device
+    when:
+      - {feature: UID_NEW_DEVICE, op: "==", value: 1}
+      - {feature: UID_IS_FIRST_TXN, op: "==", value: 0}
+  - name: velocity_1h
+    when:
+      - {feature: UID_TXN_COUNT_1H, op: ">=", value: 3}
+  - name: amount_zscore
+    when:
+      - {feature: AMT_ZSCORE_UID, op: ">", value: 3}
+  - name: email_mismatch_risky_provider
+    when:
+      - {feature: EMAIL_MATCH, op: "==", value: 0}
+      - {feature: P_EMAIL_PROVIDER, op: "in", value: [anonymous, hotmail, outlook, protonmail, mail]}
+  - name: night_high_amount
+    when:
+      - {feature: IS_NIGHT, op: "==", value: 1}
+      - {feature: TransactionAmt, op: ">", quantile: 0.90}
+  - name: first_txn_high_amount
+    when:
+      - {feature: UID_IS_FIRST_TXN, op: "==", value: 1}
+      - {feature: TransactionAmt, op: ">", quantile: 0.95}
+  - name: many_addresses_7d
+    when:
+      - {feature: UID_DISTINCT_ADDR_7D, op: ">=", value: 2}

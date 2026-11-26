@@ -1,0 +1,22 @@
+/data/
+/artifacts/*
+!/artifacts/.gitkeep
+# Generated reports can contain real transaction rows.
+/reports/*
+!/reports/.gitkeep
+!/reports/RUN_SUMMARY.md
+
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Secrets
+.env
+kaggle.json
+.claude/settings.local.json
+/build/

@@ -1,0 +1,117 @@
+# Fraud detection under a fixed alert budget
+{% if synthetic %}
+
+**SYNTHETIC DATA. These numbers show that the pipeline runs. They say nothing about real fraud.**
+{% endif %}
+
+## 1. Executive summary
+
+{{ recommendation }}
+
+At TEST rates, the recommended setup is worth about ₹{{ "{:,.0f}".format(monthly_benefit) }} per month after review and friction costs, or ₹{{ "{:,.0f}".format(monthly_uplift) }} per month relative to the rules baseline.
+
+Cost assumptions (not measured): review ₹{{ costs.review_cost_per_alert_inr }} per alert, friction ₹{{ costs.friction_cost_per_fp_inr }} per false alert, recovery rate {{ costs.recovery_rate }}, ₹{{ costs.inr_per_unit }} per dataset unit.
+
+## 2. The business problem
+
+The fraud team can review only {{ k }} transactions a day. With rare fraud, a model that flags nothing scores high accuracy, and ROC-AUC weighs thresholds that no team could ever work. The measures that matter are how much fraud money the {{ k }} daily alerts catch and what the reviews cost.
+
+## 3. Data and time split
+
+Days are split in time order, with a {{ gap_days }}-day gap before VALIDATION and TEST to mimic the delay in confirming fraud labels.
+
+{{ split_summary | table }}
+
+## 4. Features
+
+All history features use only strictly earlier transactions, and encoders are fitted on TRAIN. {{ n_features }} model features; {{ v_kept }} of {{ v_total }} V columns kept. See `feature_dictionary.csv` and `v_reduction.csv`.
+
+## 5. Rules baseline
+
+Weights are each rule's lift on TRAIN. Trigger rate, precision and value caught are on VALIDATION.
+
+{{ rules_performance | table }}
+
+## 6. Models
+
+Imbalance strategies, compared on VALIDATION (chosen: **{{ strategy }}**):
+
+{{ imbalance | table }}
+
+Model metrics:
+
+{{ model_metrics | table }}
+
+Brier score on TEST: {{ "%.5f" | format(brier_before) }} before calibration, {{ "%.5f" | format(brier_after) }} after.
+
+![Calibration](figures/calibration.png)
+![Precision-recall](figures/pr_curves.png)
+
+## 7. Alert budget results
+
+TEST, K = {{ k }}:
+
+{{ budget_results | table }}
+
+![VDR vs K](figures/vdr_vs_k.png)
+![Net benefit vs K](figures/net_benefit_vs_k.png)
+
+Fixed threshold capacity breaches on TEST:
+
+{{ breaches | table }}
+
+![Daily alerts](figures/daily_alerts_fixed_threshold.png)
+
+Sensitivity to review cost (assumption halved and doubled):
+
+{{ cost_sensitivity | table }}
+
+![Daily performance](figures/daily_performance.png)
+
+## 8. Explainability
+
+![SHAP importance](figures/shap_importance.png)
+![SHAP beeswarm](figures/shap_beeswarm.png)
+
+### Case studies
+
+{% for case in cases %}
+**{{ case.title }}**: transaction {{ case.id }}, amount {{ "%.2f" | format(case.amount) }}, fraud probability {{ "%.3f" | format(case.score) }}.
+
+Reasons: {{ case.reasons | join("; ") }}.
+
+Investigator checks: {{ case.checks }}
+
+{% else %}
+No alerts were raised, so there are no case studies.
+
+{% endfor %}
+## 9. Segments, stability and missed fraud
+
+{{ segments | table }}
+
+Weekly PR-AUC on TEST:
+
+{{ weekly | table }}
+
+Score drift:
+
+{{ psi | table }}
+
+Largest frauds not alerted:
+
+{{ missed | table }}
+
+## 10. Leakage demonstration
+
+{{ leakage | table }}
+
+A random split puts transactions from the same account on both sides, so the model can recognise accounts it has already seen labelled. The time split is the honest estimate of performance on future transactions.
+
+## 11. Limitations and next steps
+
+- Many columns are anonymised, so some reasons are hard to act on, and their point-in-time safety cannot be verified.
+- There is no investigator feedback or online learning.
+- Fraud labels spread across an account's later transactions in this data, which flatters repeat detection.
+- Online alerts use a fixed threshold, so they can differ from the ranked daily queue.
+- Next: monitor score PSI, precision on reviewed alerts and capacity breaches; retrain on a schedule; add feedback labels.

@@ -1,0 +1,9 @@
+**
+!pyproject.toml
+!uv.lock
+!README.md
+!src/**
+!config/**
+!artifacts/**
+!build/smoke/artifacts/**
+**/__pycache__

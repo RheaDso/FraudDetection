@@ -1,0 +1,28 @@
+# Run summary
+{% if synthetic %}
+
+**SYNTHETIC DATA run. Not evidence about real performance.**
+{% endif %}
+
+Git: `{{ git_hash }}` · rows: {{ n_rows }} · seed: {{ seed }}
+
+## Targets (TEST)
+
+{{ targets | table }}
+
+## API
+
+- Parity: {{ parity.parity_rows }} transactions, {{ parity.feature_mismatches }} feature mismatches, largest probability difference {{ "%.2g" | format(parity.max_probability_difference) }}.
+- Latency (in-process, no network): p95 {{ "%.1f" | format(parity.latency_p95_ms) }} ms over {{ parity.latency_requests }} requests (target < {{ p95_target }} ms).
+
+## Runtime
+
+{{ runtimes | table }}
+
+## Tests and coverage
+
+Run `make test`; this pipeline does not run the tests.
+
+## Deviations
+
+See `DECISIONS.md`.
