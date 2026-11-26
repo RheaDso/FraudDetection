@@ -19,20 +19,44 @@ flowchart LR
 
 ## Results
 
-**No results on the real IEEE-CIS data yet.** The pipeline has only been run on synthetic data,
-whose planted signal is easy to find, so those numbers are not quoted here. After `make pipeline`
-on real data, see `reports/model_report.md` and `reports/RUN_SUMMARY.md` for model against rules
-at K = 100 (precision@K, VDR, net benefit) and the VDR-against-K chart
-(`reports/figures/vdr_vs_k.png`).
+IEEE-CIS data, TEST period (the last 29 days, untouched by training and tuning), 100 alerts a day.
+First pass with 5 tuning trials.
 
-Cost assumptions (set in `config/config.yaml`, not measured): ₹150 per review, ₹50 friction per
-false alert, 90% of alerted fraud value recovered, ₹85 per dataset unit.
+| Model and policy | Precision@100 | Fraud value caught (VDR) | Net benefit, 29 days |
+|---|---|---|---|
+| **LightGBM, expected loss** (recommended) | 30.4% | **61.2%** | **₹20,133,586** |
+| LightGBM, probability | 48.8% | 43.0% | ₹14,021,433 |
+| LightGBM, fixed threshold | 48.8% | 40.4% | ₹13,193,298 |
+| Logistic regression, expected loss | 21.4% | 48.3% | ₹15,758,510 |
+| Rules baseline | 7.3% | 10.1% | ₹2,848,852 |
+
+![Value detection rate against alert budget](docs/vdr_vs_k.png)
+
+Read these with care:
+
+- **Costs are assumptions, not measurements** (set in `config/config.yaml`): ₹150 per review, ₹50
+  friction per false alert, 90% of alerted fraud value recovered, ₹85 per dataset unit.
+- The recommended setup is picked on TEST, as the specification requires, so it is likely to be
+  somewhat optimistic.
+- The rules baseline is weak (ROC-AUC 0.55), which flatters the gap to it.
+- Ranking by expected loss catches more money but a lower share of its alerts are fraud.
+- A fixed threshold exceeded capacity on 14 of the 29 days, by up to 55 alerts.
+
+| Check | Target | Actual |
+|---|---|---|
+| LightGBM PR-AUC | at least 0.45 | 0.518 |
+| LightGBM ROC-AUC | at least 0.88 | 0.899 |
+| VDR above rules | at least 10 points | 51.1 points |
+| Score drift (PSI), TRAIN to TEST | below 0.25 | 0.038 |
+| API features against batch, 2,000 transactions | within 1e-6 | 0 mismatches |
+| API latency p95, in process, 1,000 requests | below 100 ms | 85 ms |
+| Full pipeline on an 8 GB laptop | below 60 min on 16 GB | about 56 min |
 
 ## Why a time split
 
 A bank scores transactions that happen after its training data. A random split puts the same
 account on both sides and flatters the model. The pipeline splits by day with a 7-day gap, and
-trains one extra model on a random split only to show the difference (`reports/leakage_demo.csv`).
+trains one extra model on a random split only to show the difference. On this data the random split reports a PR-AUC of 0.848, against 0.518 for the time split.
 
 ## Reproduce
 

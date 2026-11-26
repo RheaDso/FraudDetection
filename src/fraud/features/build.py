@@ -33,8 +33,10 @@ def assemble(
     )
     numbers = matrix.select_dtypes("number")
     # Checked in blocks so the full data set is never copied into one large array.
-    for first in range(0, numbers.shape[1], 25):
-        block = numbers.iloc[:, first : first + 25]
+    # A single row is checked in one go; the slicing itself is slow per request.
+    width = 25 if len(numbers) > 1_000 else max(numbers.shape[1], 1)
+    for first in range(0, numbers.shape[1], width):
+        block = numbers.iloc[:, first : first + width]
         infinite = np.isinf(block.to_numpy(dtype="float64")).any(axis=0)
         for column in block.columns[infinite]:
             matrix[column] = matrix[column].replace([np.inf, -np.inf], np.nan)

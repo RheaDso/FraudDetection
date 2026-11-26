@@ -149,7 +149,8 @@ def model_input(features: pd.DataFrame) -> np.ndarray:
 
 def predict_lgbm(booster: lgb.Booster, features: pd.DataFrame | np.ndarray) -> np.ndarray:
     iteration = booster.best_iteration if booster.best_iteration > 0 else None
-    return np.asarray(booster.predict(features, num_iteration=iteration))
+    threads = 1 if len(features) == 1 else 0
+    return np.asarray(booster.predict(features, num_iteration=iteration, num_threads=threads))
 
 
 def fit_calibrator(scores: np.ndarray, is_fraud: pd.Series) -> IsotonicRegression:

@@ -34,7 +34,11 @@ def load_reason_codes(path: Path = REASON_CODES_PATH) -> dict[str, str]:
 def contributions(booster: lgb.Booster, features: pd.DataFrame | np.ndarray) -> np.ndarray:
     """SHAP values in log-odds, shape (rows, features)."""
     iteration = booster.best_iteration if booster.best_iteration > 0 else None
-    values = np.asarray(booster.predict(features, pred_contrib=True, num_iteration=iteration))
+    # For one row, starting worker threads costs more than it saves.
+    threads = 1 if len(features) == 1 else 0
+    values = np.asarray(
+        booster.predict(features, pred_contrib=True, num_iteration=iteration, num_threads=threads)
+    )
     return values[:, :-1]  # the last column is the base value
 
 

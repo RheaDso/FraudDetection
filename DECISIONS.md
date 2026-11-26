@@ -30,3 +30,5 @@ All are applied in the code.
 | D-24 | The recommendation excludes the rules baseline and is chosen on TEST. | FR-6.6 requires TEST; the report says the figures are optimistic. |
 | D-25 | The `new_device` rule ignores a customer's first transaction. | Every first transaction would otherwise count as a new device. |
 | D-26 | `many_addresses_7d` fires at 2 or more addresses. | `addr1` is part of the UID, so higher counts barely occur. |
+| D-27 | Single-row predictions and explanations use one thread, and UID keys are built in plain Python. | Latency was 129 ms p95 on the real model; outputs are unchanged. |
+| D-28 | The first real run used 5 tuning trials on an 8 GB laptop. | Time; the limit of 40 is a maximum. |
