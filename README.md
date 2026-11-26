@@ -1,5 +1,7 @@
 # Fraud detection under a fixed alert budget
 
+[![ci](https://github.com/RheaDso/FraudDetection/actions/workflows/ci.yml/badge.svg)](https://github.com/RheaDso/FraudDetection/actions/workflows/ci.yml)
+
 A fraud team can review only a fixed number of transactions a day. Fraud is rare, so accuracy is
 a poor guide: a model that flags nothing is right about 96.5% of the time. This project answers a
 different question: **which K transactions should the team review today to stop the most fraud

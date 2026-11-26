@@ -465,6 +465,7 @@ def run(config: Config, *, synthetic: bool = False) -> None:
                 "parity": api_result,
                 "p95_target": config.api.p95_latency_ms,
                 "runtimes": pd.DataFrame(runtimes),
+                "tests": report.test_status(PROJECT_ROOT / "build"),
             },
             paths.reports,
         )

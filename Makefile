@@ -10,7 +10,7 @@ pipeline:
 	uv run python -m fraud.pipeline run
 
 test:
-	uv run pytest --cov --cov-report=term-missing
+	uv run pytest --cov --cov-report=term-missing --cov-report=json:build/coverage.json --junitxml=build/test-results.xml
 
 lint:
 	uv run ruff check .

@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any
+from xml.etree import ElementTree
 
 import markdown
 import pandas as pd
@@ -31,6 +33,26 @@ def md_table(frame: pd.DataFrame) -> str:
         for row in frame.astype(object).itertuples(index=False)
     ]
     return "\n".join([header, rule, *body])
+
+
+def test_status(directory: Path) -> str:
+    """Summarise the last ``make test`` run from the files it left in ``directory``."""
+    results, coverage = directory / "test-results.xml", directory / "coverage.json"
+    if not (results.is_file() and coverage.is_file()):
+        return "Not recorded. Run `make test`, then the pipeline again."
+    suite = ElementTree.parse(results).getroot().find("testsuite")
+    assert suite is not None
+    count = {k: int(suite.get(k, 0)) for k in ("tests", "failures", "errors", "skipped")}
+    failed = count["failures"] + count["errors"]
+    percent = json.loads(coverage.read_text(encoding="utf-8"))["totals"]["percent_covered"]
+    return (
+        f"{count['tests'] - failed - count['skipped']} passed, {failed} failed, "
+        f"{count['skipped']} skipped; coverage {percent:.1f}% "
+        f"(last test run: {suite.get('timestamp', 'unknown')})."
+    )
+
+
+test_status.__test__ = False  # type: ignore[attr-defined]
 
 
 def targets_table(
